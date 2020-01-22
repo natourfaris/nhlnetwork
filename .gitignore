@@ -7,7 +7,7 @@ __pycache__/
 
 # Don't include data (at least for now)
 # due to its size
-data/
+# data/
 *.csv
 
 # No pickles
