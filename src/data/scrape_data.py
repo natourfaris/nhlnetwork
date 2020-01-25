@@ -73,8 +73,8 @@ def get_game_players(game_id):
     return players
 
 
-def get_season_players(season):
-    season_games = pd.read_csv(f'data/raw/game_lists/{season}_games.csv')
+def get_season_players(path,season):
+    season_games = pd.read_csv(os.path.join(path,f'{season}_games.csv'))
     season_games = season_games['gamePk'].tolist()
     season_games = [x for x in season_games if str(x)[5]=='2']    
     player_df = get_game_players(season_games[0])
@@ -101,13 +101,13 @@ def get_season_players(season):
     return player_df
 
 now = datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
-logging.basicConfig(filename=f'log-{now}.log',
+logging.basicConfig(filename=f'../../logs/log-{now}.log',
                     filemode='w',
                     format='%(levelname)s - %(message)s')
 
 early_seasons = [f'19{i}19{i+1}' for i in range(17,99)]
 naught_seasons = [f'200{i}200{i+1}' for i in range(9)]
-decade_seasons = [f'20{i}20{i+1}' for i in range(10,19)]
+decade_seasons = [f'20{i}20{i+1}' for i in range(10,17)]
 
 # Add seasons that don't follow number pattern 
 # and remove the lockout season
@@ -115,17 +115,24 @@ seasons = (early_seasons + ['19992000'] +
 	naught_seasons + ['20092010'] + decade_seasons)
 seasons.remove('20042005')
 
+seasons = ['19171918']
+
 if __name__ == '__main__':
 	print('Scraping the entire NHL database of games and players')
+	if not os.path.isdir('../data/raw/game_lists'):
+		os.mkdir('../../data/raw/game_lists')
+			
+	if not os.path.isdir('../../data/raw/player_lists'):
+		os.mkdir('../../data/raw/player_lists')
+
 	for season in seasons:
-	    print(f'Scraping season {season} at', datetime.now())
+		print(f'Scraping season {season} at', datetime.now())
 		start_date, end_date = get_regular_season_bookends(season)
 		result_df = get_date_range_game_data(start_date,end_date)
-		result_df.to_csv(f'data/raw/game_lists/{season}_games.csv',index=False)
-	    
-	    player_season_df = get_season_players(season)
-	    player_season_df.to_csv(f'data/raw/player_lists/players_{season}.csv',
-	    	index=False)
+		result_df.to_csv(f'../../data/raw/game_lists/{season}_games.csv',index=False)
+		
+		player_season_df = get_season_players('../../data/raw/game_lists/',season)
+		player_season_df.to_csv(f'../../data/raw/player_lists/players_{season}.csv',index=False)
 		
 		print(f'{season} games scraped...')
 		time.sleep(15)
