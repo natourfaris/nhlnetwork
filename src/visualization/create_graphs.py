@@ -20,11 +20,14 @@ ax = plt.subplot(111)
 top = nx.drawing.layout.bipartite_layout(subgraph,subgraph_players)
 top = {k:(np.array([0.75,v[1]]) if k in subgraph_players else v) for k,v in top.items()}
 nx.draw(subgraph,with_labels=True,pos=top)
-plt.savefig('../figures/bipartite.png')
+plt.savefig('../../figures/bipartite.png')
 plt.close()
 
 figure = plt.figure(figsize=(10,6))
 ax = plt.subplot(111)
-nx.draw_spring(proj_graph,with_labels=True)
-plt.savefig('../figures/bipartite2.png')
+nx.draw(proj_graph,pos={'Sidney Crosby':np.array([1.25,0.25]),
+	'Phil Kessel':np.array([1.5,0.25]),
+	'Dion Phaneuf':np.array([1.25,1.25]),
+	'Erik Karlsson':np.array([1.5,1.25])},with_labels=True)
+plt.savefig('../../figures/bipartite2.png')
 plt.close()
