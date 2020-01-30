@@ -13,26 +13,28 @@ def get_regular_season_bookends(season):
     return (season_info['regularSeasonStartDate'], 
     	season_info['regularSeasonEndDate'])
 
-def get_day_games_data(day_game_list):
+def get_day_games_data(day_game_list,gameDate):
     day_df = pd.DataFrame(day_game_list)
     away = (day_df['teams']
-    	.apply(pd.Series)['away']
-    	.apply(pd.Series)['team']
-    	.apply(pd.Series)[['name','id']]
-    	.rename(columns={'name':'away_name','id':'away_id'}))
+        .apply(pd.Series)['away']
+        .apply(pd.Series)['team']
+        .apply(pd.Series)[['name','id']]
+        .rename(columns={'name':'away_name','id':'away_id'}))
     home = (day_df['teams']
-    	.apply(pd.Series)['home']
-    	.apply(pd.Series)['team']
-    	.apply(pd.Series)[['name','id']]
-    	.rename(columns={'name':'home_name','id':'home_id'}))
+        .apply(pd.Series)['home']
+        .apply(pd.Series)['team']
+        .apply(pd.Series)[['name','id']]
+        .rename(columns={'name':'home_name','id':'home_id'}))
     ids = (day_df['teams']
-    	.apply(pd.Series)['away']
-    	.apply(pd.Series)['team']
-    	.apply(pd.Series)[['name','id']]
-    	.rename(columns={'name':'away_name','id':'away_id'}))
+        .apply(pd.Series)['away']
+        .apply(pd.Series)['team']
+        .apply(pd.Series)[['name','id']]
+        .rename(columns={'name':'away_name','id':'away_id'}))
+    
+    result_df = pd.concat([away,home,day_df['gamePk']],axis=1)
+    result_df['gameDate'] = gameDate
 
-    return pd.concat([away,home,day_df['gamePk']],axis=1)
-
+    return result_df
 
 def get_date_range_game_data(start_date,end_date):
     page = 'http://statsapi.web.nhl.com/api/v1/schedule\
@@ -41,10 +43,10 @@ def get_date_range_game_data(start_date,end_date):
     day_range_data = json.loads(requests.get(page).text)
     num_days = len(day_range_data['dates'])
 
-    result_df = get_day_games_data(day_range_data['dates'][0]['games'])
+    result_df = get_day_games_data(day_range_data['dates'][0]['games'],day_range_data['dates'][0]['date'])
     for i in range(1,num_days):
         result_df = pd.concat([result_df,
-                   get_day_games_data(day_range_data['dates'][i]['games'])])
+                   get_day_games_data(day_range_data['dates'][i]['games'],day_range_data['dates'][i]['date'])])
     
     return result_df
 
